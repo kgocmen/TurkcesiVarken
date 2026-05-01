@@ -10,4 +10,4 @@ public interface WordRepository extends JpaRepository<Word, UUID> {
 
     Optional<Word> findBySlug(String slug);
 
-}}
+}
