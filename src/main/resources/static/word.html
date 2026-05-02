@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+
+    <meta charset="UTF-8" />
+
+    <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1.0"
+    />
+
+    <title>Türkçesi Varken</title>
+
+    <link rel="stylesheet" href="/css/style.css">
+
+    <link rel="preconnect"
+          href="https://fonts.googleapis.com">
+
+    <link rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossorigin>
+
+    <link
+            href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+            rel="stylesheet"
+    >
+
+</head>
+<body>
+
+<div class="background"></div>
+
+<div class="container">
+
+    <!-- NAVBAR -->
+
+    <div class="navbar">
+
+        <div class="logo">
+            Türkçesi <span>Varken</span>
+        </div>
+
+    </div>
+
+    <!-- WORD PAGE -->
+
+    <section
+            class="word-page"
+
+            style="
+                display:block;
+                padding-top:0;
+            "
+    >
+
+        <a
+                href="/"
+
+                class="back-button"
+
+                style="
+                    margin-bottom:24px;
+                    display:inline-flex;
+                "
+        >
+            ← Ana sayfaya dön
+        </a>
+
+        <div class="word-card">
+
+            <!-- HEADER -->
+
+            <div class="word-header">
+
+                <div
+                        class="word-title"
+                        id="wordTitle"
+                >
+                    beden
+                </div>
+
+                <div
+                        style="
+                            display:flex;
+                            align-items:center;
+                            gap:14px;
+                            flex-wrap:wrap;
+                        "
+                >
+
+                    <div
+                            class="tdk-badge"
+                            id="tdkBadge"
+                    >
+                        ✓ TDK Onaylı
+                    </div>
+
+                    <a
+                            id="editButton"
+
+                            href="#"
+
+                            class="search-button"
+
+                            style="
+                                position:static;
+
+                                text-decoration:none;
+
+                                display:inline-flex;
+
+                                height:46px;
+                            "
+                    >
+                        Düzenle
+                    </a>
+
+                </div>
+
+            </div>
+
+            <!-- DEFINITION -->
+
+            <div
+                    class="word-definition"
+                    id="wordDefinition"
+            >
+                İnsan vücudu.
+            </div>
+
+            <!-- META -->
+
+            <div class="meta-grid">
+
+                <div class="meta-card">
+
+                    <div class="meta-label">
+                        Köken
+                    </div>
+
+                    <div
+                            class="meta-value"
+                            id="wordOrigin"
+                    >
+                        Arapça
+                    </div>
+
+                </div>
+
+                <div class="meta-card">
+
+                    <div class="meta-label">
+                        Kategori
+                    </div>
+
+                    <div
+                            class="meta-value"
+                            id="wordCategory"
+                    >
+                        Doğa
+                    </div>
+
+                </div>
+
+                <div class="meta-card">
+
+                    <div class="meta-label">
+                        Puan
+                    </div>
+
+                    <div
+                            class="meta-value"
+                            id="wordRating"
+                    ></div>
+
+                </div>
+
+            </div>
+
+            <!-- SYNONYMS -->
+
+            <div class="section">
+
+                <div class="section-title">
+                    Eş anlamlılar
+                </div>
+
+                <div
+                        class="pill-list"
+                        id="synonymList"
+                ></div>
+
+            </div>
+
+            <!-- SIMILAR -->
+
+            <div class="section">
+
+                <div class="section-title">
+                    Benzer sözcükler
+                </div>
+
+                <div
+                        class="pill-list"
+                        id="similarList"
+                ></div>
+
+            </div>
+
+            <!-- NOTES -->
+
+            <div class="section">
+
+                <div class="section-title">
+                    Notlar
+                </div>
+
+                <div
+                        class="word-definition"
+
+                        id="wordNotes"
+
+                        style="
+                            font-size:18px;
+                            color:#cbd5e1;
+                            margin-bottom:0;
+                        "
+                >
+                    -
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+</div>
+
+<script src="/js/api.js"></script>
+<script src="/js/word.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Kelime Ekle</title>
+
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<div class="background"></div>
+
+<div class="container">
+
+    <a href="/" class="back-button">
+        ← Ana sayfaya dön
+    </a>
+
+    <section
+            class="word-page"
+            style="
+                display:block;
+                padding-top:0;
+            "
+    >
+
+        <div class="word-card">
+
+            <!-- HEADER -->
+
+            <div class="word-header">
+
+                <div class="word-title">
+                    Yeni Kelime
+                </div>
+
+                <div
+                        style="
+                            display:flex;
+                            align-items:center;
+                            gap:28px;
+                            flex-wrap:wrap;
+                        "
+                >
+
+                    <!-- RATING -->
+
+                    <div
+                            id="ratingStars"
+                            style="
+                                display:flex;
+                                gap:6px;
+                                font-size:28px;
+                                cursor:pointer;
+                                user-select:none;
+                            "
+                    >
+
+                        <span onclick="setRating(1)">☆</span>
+                        <span onclick="setRating(2)">☆</span>
+                        <span onclick="setRating(3)">☆</span>
+                        <span onclick="setRating(4)">☆</span>
+                        <span onclick="setRating(5)">☆</span>
+
+                    </div>
+
+                    <!-- TDK SWITCH -->
+
+                    <label class="switch">
+
+                        <input
+                                id="tdk"
+                                type="checkbox"
+                                checked
+                        >
+
+                        <span class="slider"></span>
+
+                    </label>
+
+                </div>
+
+            </div>
+
+            <!-- FORM GRID -->
+
+            <div
+                    style="
+                        display:grid;
+                        grid-template-columns:1fr 1fr;
+                        gap:18px;
+                    "
+            >
+
+                <!-- NAME -->
+
+                <div class="section">
+
+                    <div class="section-title">
+                        Kelime
+                    </div>
+
+                    <input
+                            id="name"
+                            class="search-box"
+                            type="text"
+                            placeholder="Kelime gir..."
+                            style="
+                                padding:18px 22px;
+                                font-size:16px;
+                            "
+                    >
+
+                </div>
+
+                <!-- ORIGIN -->
+
+                <div class="section">
+
+                    <div class="section-title">
+                        Köken
+                    </div>
+
+                    <input
+                            id="origin"
+                            class="search-box"
+                            type="text"
+                            placeholder="Örn: Arapça"
+                            style="
+                                padding:18px 22px;
+                                font-size:16px;
+                            "
+                    >
+
+                </div>
+
+                <!-- DEFINITION -->
+
+                <div class="section">
+
+                    <div class="section-title">
+                        Tanım
+                    </div>
+
+                    <input
+                            id="definition"
+                            class="search-box"
+                            type="text"
+                            placeholder="Kelime açıklaması..."
+                            style="
+                                padding:18px 22px;
+                                font-size:16px;
+                            "
+                    >
+
+                </div>
+
+                <!-- CATEGORY -->
+
+                <div class="section">
+
+                    <div class="section-title">
+                        Kategori
+                    </div>
+
+                    <input
+                            id="category"
+                            class="search-box"
+                            type="text"
+                            placeholder="Örn: Teknoloji"
+                            style="
+                                padding:18px 22px;
+                                font-size:16px;
+                            "
+                    >
+
+                </div>
+
+            </div>
+
+            <!-- SYNONYMS -->
+
+            <div class="section">
+
+                <div class="section-title">
+                    Eş Anlamlılar
+                </div>
+
+                <input
+                        id="synonymSearch"
+                        class="search-box"
+                        type="text"
+                        placeholder="Kelime ara..."
+                        style="
+                padding:18px 22px;
+                font-size:16px;
+                margin-top:12px;
+            "
+                        oninput="searchSynonyms()"
+                >
+
+                <!-- SEARCH RESULTS -->
+
+                <div
+                        id="synonymResults"
+                        style="
+                            display:flex;
+                            flex-direction:column;
+                            gap:8px;
+
+                            margin-top:12px;
+                        "
+                ></div>
+
+                <!-- SELECTED -->
+
+                <div
+                        id="selectedSynonyms"
+                        style="
+                        display:flex;
+                        flex-wrap:wrap;
+                        gap:10px;
+
+                        margin-top:14px;
+        "
+                ></div>
+
+            </div>
+
+            <!-- SIMILAR -->
+
+            <div class="section">
+
+                <div class="section-title">
+                    Benzer Sözcükler
+                </div>
+
+                <input
+                        id="similarWords"
+                        class="search-box"
+                        type="text"
+                        placeholder="Virgülle ayırarak yaz..."
+                        style="
+                            padding:18px 22px;
+                            font-size:16px;
+                            margin-top:12px;
+                        "
+                >
+
+            </div>
+
+            <!-- NOTES -->
+
+            <div class="section">
+
+                <div class="section-title">
+                    Notlar
+                </div>
+
+                <textarea
+                        id="notes"
+                        class="search-box"
+                        placeholder="Ek bilgiler..."
+                        style="
+                            min-height:90px;
+                            resize:vertical;
+                            padding:18px 22px;
+                            font-size:16px;
+                            margin-top:12px;
+                        "
+                ></textarea>
+
+            </div>
+
+            <!-- BUTTON -->
+
+            <div class="section">
+
+                <button
+                        class="search-button"
+                        onclick="createWord()"
+                        style="
+                            position:static;
+                            margin-top:8px;
+                        "
+                >
+                    Kelimeyi Kaydet
+                </button>
+
+            </div>
+
+        </div>
+
+    </section>
+
+</div>
+
+<script src="/js/api.js"></script>
+<script src="/js/crud.js"></script>
+
+</body>
+</html>
