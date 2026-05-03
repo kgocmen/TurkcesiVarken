@@ -56,7 +56,7 @@ async function searchSynonyms() {
 
         const response =
             await fetch(
-                `/words/search?q=${query}`
+                `/api/words/search?q=${query}`
             );
 
         const words =
@@ -284,11 +284,13 @@ async function createWord() {
 
     try {
 
-        await API.createWord(data);
+        const savedWord =
+            await API.createWord(data);
 
         alert("Kelime oluşturuldu.");
 
-        window.location.href = "/";
+        window.location.href =
+            `/word.html?slug=${savedWord.slug}`;
 
     } catch (e) {
 
@@ -321,7 +323,7 @@ window.addEventListener(
 
             const response =
                 await fetch(
-                    `/words/id/${wordId}`
+                    `/api/words/id/${wordId}`
                 );
 
             const word =
@@ -469,7 +471,7 @@ async function updateWord() {
 
         const response =
             await fetch(
-                `/words/${wordId}`,
+                `/api/words/${wordId}`,
                 {
                     method: "PUT",
 
@@ -482,15 +484,11 @@ async function updateWord() {
                 }
             );
 
-        await response.json();
-
-        const slug =
-            data.name
-                .toLowerCase()
-                .replaceAll(" ", "-");
+        const savedWord =
+            await response.json();
 
         window.location.href =
-            `/word.html?slug=${slug}`;
+            `/word.html?slug=${savedWord.slug}`;
 
     } catch (e) {
 
@@ -522,7 +520,7 @@ async function deleteWord() {
     try {
 
         await fetch(
-            `/words/${wordId}`,
+            `/api/words/${wordId}`,
             {
                 method: "DELETE"
             }
@@ -537,6 +535,103 @@ async function deleteWord() {
         console.error(e);
 
         alert("Bir hata oluştu.");
+
+    }
+
+}
+
+/*
+--------------------------------
+FILL FROM NISANYAN
+--------------------------------
+*/
+
+async function fillFromNisanyan() {
+
+    const name =
+        document.getElementById(
+            "name"
+        ).value;
+
+    if (!name) {
+
+        alert(
+            "Önce kelime adı gir."
+        );
+
+        return;
+
+    }
+
+    try {
+
+        const response =
+            await fetch(
+                `/nisanyan/${name}`
+            );
+
+        if (!response.ok) {
+
+            alert(
+                "Kelime bulunamadı."
+            );
+
+            return;
+
+        }
+
+        const data =
+            await response.json();
+
+        /*
+        --------------------------------
+        FILL FORM
+        --------------------------------
+        */
+
+        document.getElementById(
+            "definition"
+        ).value =
+            data.definition || "";
+
+        document.getElementById(
+            "origin"
+        ).value =
+            data.origin || "";
+
+        document.getElementById(
+            "notes"
+        ).value =
+            data.notes || "";
+
+        /*
+        --------------------------------
+        SIMILAR WORDS
+        --------------------------------
+        */
+
+        if (data.similarWords) {
+
+            document.getElementById(
+                "similarWords"
+            ).value =
+                data.similarWords.join(
+                    ", "
+                );
+
+        }
+
+        alert(
+            "Nişanyan verileri dolduruldu."
+        );
+
+    } catch (e) {
+
+        console.error(e);
+
+        alert(
+            "Bir hata oluştu."
+        );
 
     }
 

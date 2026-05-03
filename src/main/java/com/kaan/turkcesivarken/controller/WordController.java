@@ -1,105 +1,343 @@
 package com.kaan.turkcesivarken.controller;
 
-import com.kaan.turkcesivarken.entity.Word;
-import com.kaan.turkcesivarken.repository.WordRepository;
 import com.kaan.turkcesivarken.dto.SearchWordResponse;
+import com.kaan.turkcesivarken.entity.Category;
+import com.kaan.turkcesivarken.entity.Word;
+import com.kaan.turkcesivarken.repository.CategoryRepository;
+import com.kaan.turkcesivarken.repository.WordRepository;
 import org.springframework.web.bind.annotation.*;
-import java.util.HashSet;
+
+import java.text.Normalizer;
 import java.util.List;
+import java.util.Locale;
+import java.util.UUID;
 
 @RestController
-@RequestMapping("/words")
+@RequestMapping("/api/words")
 @CrossOrigin
 public class WordController {
 
     private final WordRepository wordRepository;
+    private final CategoryRepository categoryRepository;
 
-    public WordController(WordRepository wordRepository) {
-        this.wordRepository = wordRepository;
-    }
-
-    @GetMapping
-    public List<Word> getAllWords() {
-        return wordRepository.findAll();
-    }
-
-    @GetMapping("/id/{id}")
-    public Word getWordById(
-            @PathVariable String id
+    public WordController(
+            WordRepository wordRepository,
+            CategoryRepository categoryRepository
     ) {
 
-        return wordRepository.findById(
-                java.util.UUID.fromString(id)
-        ).orElseThrow();
+        this.wordRepository = wordRepository;
+        this.categoryRepository = categoryRepository;
 
     }
 
-    @GetMapping("/{slug}")
-    public Word getWordBySlug(@PathVariable String slug) {
+    /*
+    --------------------------------
+    CREATE
+    --------------------------------
+    */
 
-        return wordRepository.findBySlug(slug)
-                .orElseThrow(() -> new RuntimeException("Kelime bulunamadı"));
+    @PostMapping
+    public Word create(
+            @RequestBody Word word
+    ) {
+
+        /*
+        ------------------------
+        DEFAULT CATEGORY
+        ------------------------
+        */
+
+        if (
+                word.getCategory() == null
+                        || word.getCategory().getId() == null
+        ) {
+
+            Category defaultCategory =
+                    categoryRepository
+                            .findByName("Diğer")
+                            .orElseThrow();
+
+            word.setCategory(defaultCategory);
+
+        }
+
+        /*
+        ------------------------
+        DEFAULT RATING
+        ------------------------
+        */
+
+        if (word.getRating() == null) {
+
+            word.setRating(5);
+
+        }
+
+        /*
+        ------------------------
+        DEFAULT TDK
+        ------------------------
+        */
+
+        if (word.getTdk() == null) {
+
+            word.setTdk(true);
+
+        }
+
+        /*
+        ------------------------
+        AUTO SLUG
+        ------------------------
+        */
+
+        String baseSlug =
+                slugify(word.getName());
+
+        String finalSlug =
+                baseSlug;
+
+        int counter = 2;
+
+        while (
+                wordRepository
+                        .findBySlug(finalSlug)
+                        .isPresent()
+        ) {
+
+            finalSlug =
+                    baseSlug + counter;
+
+            counter++;
+
+        }
+
+        word.setSlug(finalSlug);
+
+        return wordRepository.save(word);
+
     }
+
+    /*
+    --------------------------------
+    SEARCH
+    --------------------------------
+    */
 
     @GetMapping("/search")
-    public List<SearchWordResponse> searchWords(
+    public List<SearchWordResponse> search(
             @RequestParam String q
     ) {
 
         return wordRepository
                 .findByNameContainingIgnoreCase(q)
                 .stream()
-                .map(word -> new SearchWordResponse(
-                        word.getId(),
-                        word.getName(),
-                        word.getSlug()
-                ))
+                .map(word ->
+                        new SearchWordResponse(
+                                word.getId(),
+                                word.getName(),
+                                word.getSlug()
+                        )
+                )
                 .toList();
 
     }
 
+    /*
+    --------------------------------
+    GET BY ID
+    --------------------------------
+    */
+
+    @GetMapping("/id/{id}")
+    public Word getById(
+            @PathVariable UUID id
+    ) {
+
+        return wordRepository
+                .findById(id)
+                .orElseThrow();
+
+    }
+
+    /*
+    --------------------------------
+    GET BY SLUG
+    --------------------------------
+    */
+
+    @GetMapping("/{slug}")
+    public Word getBySlug(
+            @PathVariable String slug
+    ) {
+
+        return wordRepository
+                .findBySlug(slug)
+                .orElseThrow();
+
+    }
+
+    /*
+    --------------------------------
+    UPDATE
+    --------------------------------
+    */
+
     @PutMapping("/{id}")
-    public Word updateWord(
-            @PathVariable String id,
-            @RequestBody Word updatedWord
+    public Word update(
+            @PathVariable UUID id,
+            @RequestBody Word updated
     ) {
 
         Word word =
-                wordRepository.findById(
-                        java.util.UUID.fromString(id)
-                ).orElseThrow();
+                wordRepository
+                        .findById(id)
+                        .orElseThrow();
 
-        word.setName(updatedWord.getName());
-        word.setDefinition(updatedWord.getDefinition());
-        word.setOrigin(updatedWord.getOrigin());
-        word.setNotes(updatedWord.getNotes());
-        word.setRating(updatedWord.getRating());
-        word.setTdk(updatedWord.getTdk());
+        word.setName(updated.getName());
+
+        word.setDefinition(
+                updated.getDefinition()
+        );
+
+        word.setOrigin(
+                updated.getOrigin()
+        );
+
+        word.setNotes(
+                updated.getNotes()
+        );
+
+        word.setRating(
+                updated.getRating()
+        );
+
+        word.setTdk(
+                updated.getTdk()
+        );
+
         word.setSynonyms(
-                updatedWord.getSynonyms()
+                updated.getSynonyms()
         );
 
         word.setSimilarWords(
-                updatedWord.getSimilarWords()
+                updated.getSimilarWords()
         );
 
+        /*
+        ------------------------
+        CATEGORY
+        ------------------------
+        */
+
+        if (
+                updated.getCategory() == null
+                        || updated.getCategory().getId() == null
+        ) {
+
+            Category defaultCategory =
+                    categoryRepository
+                            .findByName("Diğer")
+                            .orElseThrow();
+
+            word.setCategory(defaultCategory);
+
+        } else {
+
+            word.setCategory(
+                    updated.getCategory()
+            );
+
+        }
+
+        /*
+        ------------------------
+        AUTO SLUG
+        ------------------------
+        */
+
+        String baseSlug =
+                slugify(updated.getName());
+
+        String finalSlug =
+                baseSlug;
+
+        int counter = 2;
+
+        while (
+                wordRepository
+                        .findBySlug(finalSlug)
+                        .isPresent()
+                        &&
+                        !word.getSlug().equals(finalSlug)
+        ) {
+
+            finalSlug =
+                    baseSlug + counter;
+
+            counter++;
+
+        }
+
+        word.setSlug(finalSlug);
+
         return wordRepository.save(word);
 
     }
 
-    @PostMapping
-    public Word saveWord(@RequestBody Word word) {
-        return wordRepository.save(word);
-    }
+    /*
+    --------------------------------
+    DELETE
+    --------------------------------
+    */
 
     @DeleteMapping("/{id}")
-    public void deleteWord(
-            @PathVariable String id
+    public void delete(
+            @PathVariable UUID id
     ) {
 
-        wordRepository.deleteById(
-                java.util.UUID.fromString(id)
-        );
+        wordRepository.deleteById(id);
 
     }
+
+    /*
+    --------------------------------
+    SLUGIFY
+    --------------------------------
+    */
+
+    private String slugify(
+            String text
+    ) {
+
+        text =
+                text.toLowerCase(
+                        Locale.forLanguageTag("tr")
+                );
+
+        text =
+                text
+                        .replace("ç", "c")
+                        .replace("ğ", "g")
+                        .replace("ı", "i")
+                        .replace("ö", "o")
+                        .replace("ş", "s")
+                        .replace("ü", "u");
+
+        text =
+                Normalizer.normalize(
+                        text,
+                        Normalizer.Form.NFD
+                );
+
+        text =
+                text.replaceAll(
+                        "[^a-z0-9]",
+                        ""
+                );
+
+        return text;
+
+    }
+
 }

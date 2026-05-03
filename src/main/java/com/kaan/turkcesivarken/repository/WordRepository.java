@@ -12,9 +12,12 @@ public interface WordRepository
 
     Optional<Word> findBySlug(String slug);
 
+    boolean existsBySlug(String slug);
+
     List<Word> findByNameContainingIgnoreCase(String name);
 
     List<Word> findByNameIn(
             List<String> names
     );
+
 }

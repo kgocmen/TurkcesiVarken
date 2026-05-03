@@ -22,7 +22,7 @@ async function loadWord() {
 
         const response =
             await fetch(
-                `/words/${slug}`
+                `/api/words/${slug}`
             );
 
         /*
@@ -215,7 +215,7 @@ SIMILAR WORDS
 
                     const response =
                         await fetch(
-                            `/words/${similar}`
+                            `/api/words/${similar}`
                         );
 
                     if (response.ok) {
