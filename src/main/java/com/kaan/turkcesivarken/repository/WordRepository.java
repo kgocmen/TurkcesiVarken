@@ -14,7 +14,9 @@ public interface WordRepository
 
     boolean existsBySlug(String slug);
 
-    List<Word> findByNameContainingIgnoreCase(String name);
+    List<Word> findTop10ByNameContainingIgnoreCaseOrderByNameAsc(
+            String name
+    );
 
     List<Word> findByNameIn(
             List<String> names

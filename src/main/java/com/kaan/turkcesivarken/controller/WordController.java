@@ -129,8 +129,15 @@ public class WordController {
             @RequestParam String q
     ) {
 
+        String query =
+                q.trim();
+
+        if (query.length() < 2) {
+            return List.of();
+        }
+
         return wordRepository
-                .findByNameContainingIgnoreCase(q)
+                .findTop10ByNameContainingIgnoreCaseOrderByNameAsc(query)
                 .stream()
                 .map(word ->
                         new SearchWordResponse(

@@ -74,6 +74,12 @@
                     type="text"
 
                     placeholder="Kelime ara..."
+
+                    autocomplete="off"
+
+                    oninput="searchExistingWords()"
+
+                    onkeydown="handleSearchKeydown(event)"
             />
 
             <button
@@ -83,6 +89,12 @@
             >
                 Ara
             </button>
+
+            <div
+                    id="searchResults"
+
+                    class="search-results"
+            ></div>
 
         </div>
 

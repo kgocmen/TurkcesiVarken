@@ -64,40 +64,48 @@ async function searchSynonyms() {
 
         results.innerHTML = "";
 
-        words.forEach(word => {
+        words
+            .sort((a, b) =>
+                a.name.localeCompare(
+                    b.name,
+                    "tr",
+                    { sensitivity: "base" }
+                )
+            )
+            .forEach(word => {
 
-            results.innerHTML += `
-                <button
-                    type="button"
+                results.innerHTML += `
+                    <button
+                        type="button"
 
-                    onclick="addSynonym(
-                        '${word.id}',
-                        '${word.name}'
-                    )"
+                        onclick="addSynonym(
+                            '${word.id}',
+                            '${word.name}'
+                        )"
 
-                    style="
-                        background:rgba(255,255,255,0.06);
+                        style="
+                            background:rgba(255,255,255,0.06);
 
-                        border:1px solid rgba(255,255,255,0.08);
+                            border:1px solid rgba(255,255,255,0.08);
 
-                        color:white;
+                            color:white;
 
-                        padding:12px 16px;
+                            padding:12px 16px;
 
-                        border-radius:14px;
+                            border-radius:14px;
 
-                        cursor:pointer;
+                            cursor:pointer;
 
-                        text-align:left;
+                            text-align:left;
 
-                        transition:.2s ease;
-                    "
-                >
-                    ${word.name}
-                </button>
-            `;
+                            transition:.2s ease;
+                        "
+                    >
+                        ${word.name}
+                    </button>
+                `;
 
-        });
+            });
 
     } catch (e) {
 
@@ -287,7 +295,6 @@ async function createWord() {
         const savedWord =
             await API.createWord(data);
 
-        alert("Kelime oluşturuldu.");
 
         window.location.href =
             `/word.html?slug=${savedWord.slug}`;
@@ -310,10 +317,22 @@ const params =
 const wordId =
     params.get("id");
 
+const initialWord =
+    params.get("word");
+
 
 window.addEventListener(
     "DOMContentLoaded",
     async () => {
+
+        if (initialWord) {
+
+            document.getElementById(
+                "name"
+            ).value =
+                initialWord;
+
+        }
 
         if (!wordId) {
             return;
@@ -526,8 +545,6 @@ async function deleteWord() {
             }
         );
 
-        alert("Kelime silindi.");
-
         window.location.href = "/";
 
     } catch (e) {
@@ -555,9 +572,7 @@ async function fillFromNisanyan() {
 
     if (!name) {
 
-        alert(
-            "Önce kelime adı gir."
-        );
+        alert("Önce kelime adı gir.");
 
         return;
 
@@ -572,9 +587,7 @@ async function fillFromNisanyan() {
 
         if (!response.ok) {
 
-            alert(
-                "Kelime bulunamadı."
-            );
+            alert("Kelime bulunamadı.");
 
             return;
 
@@ -621,17 +634,12 @@ async function fillFromNisanyan() {
 
         }
 
-        alert(
-            "Nişanyan verileri dolduruldu."
-        );
 
     } catch (e) {
 
         console.error(e);
 
-        alert(
-            "Bir hata oluştu."
-        );
+        alert("Bir hata oluştu.");
 
     }
 
