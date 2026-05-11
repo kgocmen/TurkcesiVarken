@@ -2,6 +2,29 @@ let selectedRating = 0;
 
 let selectedSynonyms = [];
 
+function escapeHtml(value) {
+
+    return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+
+}
+
+function escapeJsString(value) {
+
+    return String(value)
+        .replace(/\\/g, "\\\\")
+        .replace(/'/g, "\\'")
+        .replace(/\n/g, "\\n")
+        .replace(/\r/g, "\\r")
+        .replace(/</g, "\\x3C")
+        .replace(/>/g, "\\x3E");
+
+}
+
 /*
 --------------------------------
 RATING
@@ -28,6 +51,181 @@ function setRating(value) {
 
 /*
 --------------------------------
+SEARCH CATEGORIES
+--------------------------------
+*/
+
+async function searchCategories() {
+
+    const input =
+        document.getElementById(
+            "category"
+        );
+
+    const results =
+        document.getElementById(
+            "categoryResults"
+        );
+
+    if (!input || !results) {
+        return;
+    }
+
+    const query =
+        input.value.trim();
+
+    if (query.length < 1) {
+
+        results.innerHTML = "";
+
+        return;
+
+    }
+
+    try {
+
+        const response =
+            await fetch("/api/categories");
+
+        if (!response.ok) {
+            throw new Error("Kategoriler alınamadı.");
+        }
+
+        const categories =
+            await response.json();
+
+        const matchingCategories =
+            categories
+                .filter(category =>
+                    category.name
+                        .toLocaleLowerCase("tr")
+                        .includes(
+                            query.toLocaleLowerCase("tr")
+                        )
+                )
+                .sort((a, b) =>
+                    a.name.localeCompare(
+                        b.name,
+                        "tr",
+                        { sensitivity: "base" }
+                    )
+                );
+
+        results.innerHTML = "";
+
+        matchingCategories
+            .forEach(category => {
+
+                results.innerHTML += `
+                    <button
+                        type="button"
+                        onclick="selectCategory(
+                            '${escapeJsString(category.name)}'
+                        )"
+                        style="
+                            background:rgba(255,255,255,0.06);
+                            border:1px solid rgba(255,255,255,0.08);
+                            color:white;
+                            padding:12px 16px;
+                            border-radius:14px;
+                            cursor:pointer;
+                            text-align:left;
+                            transition:.2s ease;
+                        "
+                    >
+                        ${escapeHtml(category.name)}
+                    </button>
+                `;
+
+            });
+
+        const exactMatch =
+            matchingCategories.some(category =>
+                category.name.localeCompare(
+                    query,
+                    "tr",
+                    { sensitivity: "base" }
+                ) === 0
+            );
+
+        if (!exactMatch) {
+
+            results.innerHTML += `
+                <button
+                    type="button"
+                    onclick="selectCategoryFromInput()"
+                    style="
+                        background:rgba(80, 180, 140, 0.16);
+                        border:1px solid rgba(80, 180, 140, 0.28);
+                        color:white;
+                        padding:12px 16px;
+                        border-radius:14px;
+                        cursor:pointer;
+                        text-align:left;
+                        transition:.2s ease;
+                    "
+                >
+                    Yeni kategori olarak kullan: ${escapeHtml(query)}
+                </button>
+            `;
+
+        }
+
+    } catch (e) {
+
+        console.error(e);
+
+    }
+
+}
+
+function selectCategory(name) {
+
+    document.getElementById(
+        "category"
+    ).value = name.trim();
+
+    document.getElementById(
+        "categoryResults"
+    ).innerHTML = "";
+
+}
+
+function selectCategoryFromInput() {
+
+    const input =
+        document.getElementById(
+            "category"
+        );
+
+    selectCategory(
+        input.value
+    );
+
+}
+
+function getSelectedCategory() {
+
+    const input =
+        document.getElementById(
+            "category"
+        );
+
+    const name =
+        input ? input.value.trim() : "";
+
+    if (!name) {
+        return null;
+    }
+
+    return {
+        name
+    };
+
+}
+
+/*
+--------------------------------
 SEARCH SYNONYMS
 --------------------------------
 */
@@ -37,7 +235,7 @@ async function searchSynonyms() {
     const query =
         document.getElementById(
             "synonymSearch"
-        ).value;
+        ).value.trim();
 
     const results =
         document.getElementById(
@@ -56,7 +254,7 @@ async function searchSynonyms() {
 
         const response =
             await fetch(
-                `/api/words/search?q=${query}`
+                `/api/words/search?q=${encodeURIComponent(query)}`
             );
 
         const words =
@@ -64,14 +262,17 @@ async function searchSynonyms() {
 
         results.innerHTML = "";
 
-        words
+        const sortedWords =
+            words
             .sort((a, b) =>
                 a.name.localeCompare(
                     b.name,
                     "tr",
                     { sensitivity: "base" }
                 )
-            )
+            );
+
+        sortedWords
             .forEach(word => {
 
                 results.innerHTML += `
@@ -79,8 +280,8 @@ async function searchSynonyms() {
                         type="button"
 
                         onclick="addSynonym(
-                            '${word.id}',
-                            '${word.name}'
+                            '${escapeJsString(word.id)}',
+                            '${escapeJsString(word.name)}'
                         )"
 
                         style="
@@ -101,11 +302,52 @@ async function searchSynonyms() {
                             transition:.2s ease;
                         "
                     >
-                        ${word.name}
+                        ${escapeHtml(word.name)}
                     </button>
                 `;
 
             });
+
+        const exactMatch =
+            sortedWords.some(word =>
+                word.name.localeCompare(
+                    query,
+                    "tr",
+                    { sensitivity: "base" }
+                ) === 0
+            );
+
+        if (!exactMatch) {
+
+            results.innerHTML += `
+                <button
+                    type="button"
+
+                    onclick="addNewSynonymFromSearch()"
+
+                    style="
+                        background:rgba(80, 180, 140, 0.16);
+
+                        border:1px solid rgba(80, 180, 140, 0.28);
+
+                        color:white;
+
+                        padding:12px 16px;
+
+                        border-radius:14px;
+
+                        cursor:pointer;
+
+                        text-align:left;
+
+                        transition:.2s ease;
+                    "
+                >
+                    Yeni kelime olarak ekle: ${escapeHtml(query)}
+                </button>
+            `;
+
+        }
 
     } catch (e) {
 
@@ -123,9 +365,19 @@ ADD SYNONYM
 
 function addSynonym(id, name) {
 
+    const normalizedName =
+        name.trim();
+
+    const synonymKey =
+        id || normalizedName.toLocaleLowerCase("tr");
+
     const exists =
         selectedSynonyms.find(
-            word => word.id === id
+            word => word.key === synonymKey
+                    || (
+                        word.name.toLocaleLowerCase("tr")
+                            === normalizedName.toLocaleLowerCase("tr")
+                    )
         );
 
     if (exists) {
@@ -133,8 +385,9 @@ function addSynonym(id, name) {
     }
 
     selectedSynonyms.push({
+        key: synonymKey,
         id,
-        name
+        name: normalizedName
     });
 
     document.getElementById(
@@ -149,6 +402,27 @@ function addSynonym(id, name) {
 
 }
 
+function addNewSynonymFromSearch() {
+
+    const input =
+        document.getElementById(
+            "synonymSearch"
+        );
+
+    const name =
+        input.value.trim();
+
+    if (name.length < 2) {
+        return;
+    }
+
+    addSynonym(
+        null,
+        name
+    );
+
+}
+
 /*
 --------------------------------
 REMOVE SYNONYM
@@ -159,7 +433,7 @@ function removeSynonym(id) {
 
     selectedSynonyms =
         selectedSynonyms.filter(
-            word => word.id !== id
+            word => word.key !== id
         );
 
     renderSynonyms();
@@ -204,14 +478,14 @@ function renderSynonyms() {
             >
 
                 <span>
-                    ${word.name}
+                    ${escapeHtml(word.name)}
                 </span>
 
                 <button
                     type="button"
 
                     onclick="removeSynonym(
-                        '${word.id}'
+                        '${escapeJsString(word.key)}'
                     )"
 
                     style="
@@ -274,10 +548,14 @@ async function createWord() {
             "tdk"
         ).checked,
 
+        category:
+            getSelectedCategory(),
+
         synonyms:
             selectedSynonyms.map(
                 word => ({
-                    id: word.id
+                    id: word.id,
+                    name: word.name
                 })
             ),
         similarWords:
@@ -325,6 +603,52 @@ window.addEventListener(
     "DOMContentLoaded",
     async () => {
 
+        const synonymSearch =
+            document.getElementById(
+                "synonymSearch"
+            );
+
+        if (synonymSearch) {
+
+            synonymSearch.addEventListener(
+                "keydown",
+                event => {
+
+                    if (event.key !== "Enter") {
+                        return;
+                    }
+
+                    event.preventDefault();
+                    addNewSynonymFromSearch();
+
+                }
+            );
+
+        }
+
+        const categoryInput =
+            document.getElementById(
+                "category"
+            );
+
+        if (categoryInput) {
+
+            categoryInput.addEventListener(
+                "keydown",
+                event => {
+
+                    if (event.key !== "Enter") {
+                        return;
+                    }
+
+                    event.preventDefault();
+                    selectCategoryFromInput();
+
+                }
+            );
+
+        }
+
         if (initialWord) {
 
             document.getElementById(
@@ -365,6 +689,7 @@ window.addEventListener(
                     word.synonyms.map(
                         synonym => ({
                             id: synonym.id,
+                            key: synonym.id,
                             name: synonym.name
                         })
                     );
@@ -469,10 +794,14 @@ async function updateWord() {
             "tdk"
         ).checked,
 
+        category:
+            getSelectedCategory(),
+
         synonyms:
             selectedSynonyms.map(
                 word => ({
-                    id: word.id
+                    id: word.id,
+                    name: word.name
                 })
             ),
 

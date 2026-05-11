@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Kelimeler | Türkçesi Varken</title>
+
+    <link rel="stylesheet" href="/css/style.css">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link
+            href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+            rel="stylesheet"
+    >
+</head>
+<body>
+
+<div class="background"></div>
+
+<div class="container">
+
+    <a href="/" class="back-button">
+        ← Ana sayfa
+    </a>
+
+    <main class="list-page">
+
+        <h1 class="page-title">
+            Kelimeler
+        </h1>
+
+        <p class="page-description">
+            Tüm kelimeler alfabetik sırada.
+        </p>
+
+        <div class="table-toolbar">
+            <button
+                    id="editWordsButton"
+                    class="action-button action-button-secondary"
+                    type="button"
+                    onclick="toggleWordsEditMode()"
+            >
+                Düzenleme Modu: Kapalı
+            </button>
+
+            <button
+                    id="saveWordsButton"
+                    class="action-button"
+                    type="button"
+                    onclick="saveAllWordRows()"
+                    style="display:none;"
+            >
+                Değişiklikleri Kaydet
+            </button>
+        </div>
+
+        <div
+                id="wordsTable"
+                class="table-wrap"
+        ></div>
+
+    </main>
+
+</div>
+
+<script src="/js/lists.js"></script>
+
+</body>
+</html>

@@ -1,6 +1,7 @@
 package com.kaan.turkcesivarken.repository;
 
 import com.kaan.turkcesivarken.entity.Word;
+import com.kaan.turkcesivarken.entity.Category;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
@@ -12,7 +13,13 @@ public interface WordRepository
 
     Optional<Word> findBySlug(String slug);
 
+    Optional<Word> findByNameIgnoreCase(String name);
+
     boolean existsBySlug(String slug);
+
+    List<Word> findAllByOrderByNameAsc();
+
+    List<Word> findByCategory(Category category);
 
     List<Word> findTop10ByNameContainingIgnoreCaseOrderByNameAsc(
             String name
